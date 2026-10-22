@@ -1,14 +1,14 @@
 {
   "historico": [
     {
-      "data": "2026-10-19",
       "atendimentos": 999,
-      "recrutamentos": 890,
-      "estudosAtivos": 5,
+      "data": "2026-10-19",
       "ensaiosClinicos": 4,
-      "pesquisasAndamento": 82,
+      "estudosAtivos": 5,
       "mediaInterna": 91.65,
-      "observacao": "Levantamento inicial dos indicadores da UGPESQ/CPC"
-    },
+      "observacao": "teste",
+      "pesquisasAndamento": 82,
+      "recrutamentos": 890
+    }
   ]
 }
