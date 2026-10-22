@@ -1,0 +1,1338 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Indicadores UGPESQ</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 24px;
+            background-color: #f3f6f9;
+            color: #12324a;
+            font-family: "Segoe UI", Arial, sans-serif;
+        }
+
+        .dashboard {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .cabecalho {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 24px;
+            margin-bottom: 22px;
+        }
+
+        .titulo-area h1 {
+            margin: 0;
+            color: #123b59;
+            font-size: 32px;
+        }
+
+        .titulo-area p {
+            margin: 7px 0 0;
+            color: #5e7282;
+            font-size: 16px;
+        }
+
+        .referencia {
+            min-width: 250px;
+            padding: 14px 18px;
+            background-color: #ffffff;
+            border: 1px solid #d7e0e7;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(25, 55, 75, 0.07);
+        }
+
+        .referencia span {
+            display: block;
+            margin-bottom: 5px;
+            color: #6b7e8d;
+            font-size: 13px;
+        }
+
+        .referencia strong {
+            color: #087f78;
+            font-size: 18px;
+        }
+
+        .sobre {
+            margin-bottom: 28px;
+            padding: 20px 22px;
+            background-color: #ffffff;
+            border: 1px solid #d7e0e7;
+            border-radius: 14px;
+            box-shadow: 0 4px 14px rgba(25, 55, 75, 0.07);
+            line-height: 1.6;
+        }
+
+        .sobre h2 {
+            margin: 0 0 12px;
+            color: #123b59;
+            font-size: 23px;
+        }
+
+        .sobre p {
+            margin: 0;
+            color: #263f52;
+        }
+
+        .titulo-secao {
+            margin: 0 0 16px;
+            color: #123b59;
+            font-size: 24px;
+        }
+
+        .mensagem {
+            display: none;
+            margin-bottom: 18px;
+            padding: 14px 18px;
+            border-radius: 10px;
+        }
+
+        .mensagem-carregando {
+            display: block;
+            color: #075e58;
+            background-color: #dff4f1;
+            border: 1px solid #7bc8c1;
+        }
+
+        .mensagem-erro {
+            display: block;
+            color: #842029;
+            background-color: #f8d7da;
+            border: 1px solid #f1aeb5;
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            min-height: 190px;
+            padding: 22px;
+            display: flex;
+            flex-direction: column;
+            background-color: #ffffff;
+            border: 1px solid #d8e2e9;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(25, 55, 75, 0.08);
+        }
+
+        .card-numero {
+            margin-bottom: 8px;
+            color: #087f78;
+            font-size: 38px;
+            line-height: 1;
+            font-weight: 800;
+        }
+
+        .card-titulo {
+            min-height: 44px;
+            color: #12324a;
+            font-size: 17px;
+            font-weight: 650;
+        }
+
+        .card-tipo {
+            display: inline-block;
+            align-self: flex-start;
+            margin-top: 10px;
+            padding: 4px 9px;
+            color: #3b5e70;
+            background-color: #eef4f6;
+            border-radius: 20px;
+            font-size: 12px;
+        }
+
+        .card-variacao {
+            margin-top: auto;
+            padding-top: 13px;
+            color: #587080;
+            font-size: 13px;
+            line-height: 1.45;
+        }
+
+        .variacao-positiva {
+            color: #087f55;
+            font-weight: 650;
+        }
+
+        .variacao-negativa {
+            color: #b54708;
+            font-weight: 650;
+        }
+
+        .variacao-neutra {
+            color: #667085;
+            font-weight: 650;
+        }
+
+        .painel-historico {
+            padding: 22px;
+            background-color: #ffffff;
+            border: 1px solid #d8e2e9;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(25, 55, 75, 0.08);
+        }
+
+        .painel-topo {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            gap: 20px;
+            margin-bottom: 22px;
+        }
+
+        .painel-topo h2 {
+            margin: 0;
+            color: #123b59;
+            font-size: 23px;
+        }
+
+        .filtros {
+            display: flex;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+
+        .campo-filtro {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .campo-filtro label {
+            color: #536b7b;
+            font-size: 13px;
+            font-weight: 650;
+        }
+
+        .campo-filtro select {
+            min-width: 190px;
+            padding: 9px 12px;
+            border: 1px solid #aebdc7;
+            border-radius: 8px;
+            background-color: #ffffff;
+            color: #1c384b;
+            font-size: 14px;
+        }
+
+        .grafico-container {
+            position: relative;
+            width: 100%;
+            min-height: 360px;
+            overflow: hidden;
+            border-radius: 10px;
+            background-color: #fbfcfd;
+        }
+
+        #grafico {
+            display: block;
+            width: 100%;
+            height: 360px;
+        }
+
+        .resumo-grafico {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-top: 18px;
+        }
+
+        .resumo-item {
+            padding: 12px;
+            background-color: #f4f8fa;
+            border-radius: 9px;
+            text-align: center;
+        }
+
+        .resumo-item span {
+            display: block;
+            margin-bottom: 4px;
+            color: #6b7d89;
+            font-size: 12px;
+        }
+
+        .resumo-item strong {
+            color: #123b59;
+            font-size: 17px;
+        }
+
+        .observacao {
+            margin-top: 22px;
+            padding: 15px 18px;
+            background-color: #edf7f6;
+            border-left: 6px solid #087f78;
+            border-radius: 9px;
+        }
+
+        .observacao strong {
+            display: block;
+            margin-bottom: 5px;
+            color: #075e58;
+        }
+
+        .observacao p {
+            margin: 0;
+            color: #385866;
+            line-height: 1.5;
+        }
+
+        .rodape {
+            margin-top: 22px;
+            color: #778895;
+            font-size: 12px;
+            text-align: center;
+        }
+
+        @media (max-width: 950px) {
+            .cards {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .painel-topo {
+                align-items: stretch;
+                flex-direction: column;
+            }
+        }
+
+        @media (max-width: 650px) {
+            body {
+                padding: 14px;
+            }
+
+            .cabecalho {
+                flex-direction: column;
+            }
+
+            .referencia {
+                width: 100%;
+            }
+
+            .cards {
+                grid-template-columns: 1fr;
+            }
+
+            .filtros {
+                flex-direction: column;
+            }
+
+            .campo-filtro select {
+                width: 100%;
+            }
+
+            .resumo-grafico {
+                grid-template-columns: 1fr;
+            }
+
+            .card {
+                min-height: 165px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <main class="dashboard">
+
+        <header class="cabecalho">
+            <div class="titulo-area">
+                <h1>Indicadores da UGPESQ</h1>
+                <p>Unidade de Gestão da Pesquisa e Centro de Pesquisa Clínica</p>
+            </div>
+
+            <div class="referencia">
+                <span>Última posição registrada</span>
+                <strong id="ultimaAtualizacao">Carregando...</strong>
+            </div>
+        </header>
+
+        <section class="sobre">
+            <h2>Sobre o CPC</h2>
+
+            <p>
+                Implantado em <strong>3 de maio de 2024</strong>, o Centro de
+                Pesquisa Clínica do Hospital Universitário da Universidade
+                Federal do Amapá integra a Unidade de Gestão da Pesquisa,
+                vinculada à Gerência de Ensino e Pesquisa. A atuação envolve
+                apoio à condução de estudos clínicos, articulação
+                multiprofissional, acompanhamento de participantes, gestão de
+                protocolos e fortalecimento da pesquisa em saúde.
+            </p>
+        </section>
+
+        <div
+            id="mensagem"
+            class="mensagem mensagem-carregando"
+            role="status"
+            aria-live="polite">
+            Carregando os indicadores...
+        </div>
+
+        <h2 class="titulo-secao">Indicadores em destaque</h2>
+
+        <section class="cards">
+
+            <article class="card">
+                <div id="valorAtendimentos" class="card-numero">0</div>
+                <div class="card-titulo">Atendimentos acumulados</div>
+                <span class="card-tipo">Indicador acumulado</span>
+                <div id="variacaoAtendimentos" class="card-variacao">
+                    Carregando...
+                </div>
+            </article>
+
+            <article class="card">
+                <div id="valorRecrutamentos" class="card-numero">0</div>
+                <div class="card-titulo">Recrutamentos acumulados</div>
+                <span class="card-tipo">Indicador acumulado</span>
+                <div id="variacaoRecrutamentos" class="card-variacao">
+                    Carregando...
+                </div>
+            </article>
+
+            <article class="card">
+                <div id="valorEstudos" class="card-numero">0</div>
+                <div class="card-titulo">Estudos clínicos ativos</div>
+                <span class="card-tipo">Posição na data</span>
+                <div id="variacaoEstudos" class="card-variacao">
+                    Carregando...
+                </div>
+            </article>
+
+            <article class="card">
+                <div id="valorEnsaios" class="card-numero">0</div>
+                <div class="card-titulo">Ensaios clínicos</div>
+                <span class="card-tipo">Posição na data</span>
+                <div id="variacaoEnsaios" class="card-variacao">
+                    Carregando...
+                </div>
+            </article>
+
+            <article class="card">
+                <div id="valorPesquisas" class="card-numero">0</div>
+                <div class="card-titulo">Pesquisas em andamento</div>
+                <span class="card-tipo">Posição na data</span>
+                <div id="variacaoPesquisas" class="card-variacao">
+                    Carregando...
+                </div>
+            </article>
+
+            <article class="card">
+                <div id="valorMedia" class="card-numero">0%</div>
+                <div class="card-titulo">Média dos indicadores internos</div>
+                <span class="card-tipo">Percentual</span>
+                <div id="variacaoMedia" class="card-variacao">
+                    Carregando...
+                </div>
+            </article>
+
+        </section>
+
+        <section class="painel-historico">
+
+            <div class="painel-topo">
+                <h2>Evolução histórica</h2>
+
+                <div class="filtros">
+
+                    <div class="campo-filtro">
+                        <label for="filtroIndicador">Indicador</label>
+
+                        <select id="filtroIndicador">
+                            <option value="atendimentos">
+                                Atendimentos acumulados
+                            </option>
+
+                            <option value="recrutamentos">
+                                Recrutamentos acumulados
+                            </option>
+
+                            <option value="estudosAtivos">
+                                Estudos clínicos ativos
+                            </option>
+
+                            <option value="ensaiosClinicos">
+                                Ensaios clínicos
+                            </option>
+
+                            <option value="pesquisasAndamento">
+                                Pesquisas em andamento
+                            </option>
+
+                            <option value="mediaInterna">
+                                Média interna
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="campo-filtro">
+                        <label for="filtroAno">Período</label>
+
+                        <select id="filtroAno">
+                            <option value="todos">Todo o histórico</option>
+                        </select>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="grafico-container">
+                <svg
+                    id="grafico"
+                    viewBox="0 0 1000 360"
+                    preserveAspectRatio="none"
+                    aria-label="Gráfico de evolução histórica">
+                </svg>
+            </div>
+
+            <div class="resumo-grafico">
+                <div class="resumo-item">
+                    <span>Primeira medição do período</span>
+                    <strong id="resumoPrimeiro">-</strong>
+                </div>
+
+                <div class="resumo-item">
+                    <span>Última medição do período</span>
+                    <strong id="resumoUltimo">-</strong>
+                </div>
+
+                <div class="resumo-item">
+                    <span>Variação no período</span>
+                    <strong id="resumoVariacao">-</strong>
+                </div>
+            </div>
+
+            <div id="areaObservacao" class="observacao">
+                <strong>Observação da última medição</strong>
+                <p id="textoObservacao">
+                    Nenhuma observação registrada.
+                </p>
+            </div>
+
+        </section>
+
+        <footer class="rodape">
+            Fonte: Unidade de Gestão da Pesquisa e Centro de Pesquisa Clínica.
+        </footer>
+
+    </main>
+
+    <script>
+        var historicoCompleto = [];
+
+        var configuracoes = {
+            atendimentos: {
+                campo: "atendimentos",
+                percentual: false,
+                titulo: "Atendimentos acumulados"
+            },
+
+            recrutamentos: {
+                campo: "recrutamentos",
+                percentual: false,
+                titulo: "Recrutamentos acumulados"
+            },
+
+            estudosAtivos: {
+                campo: "estudosAtivos",
+                percentual: false,
+                titulo: "Estudos clínicos ativos"
+            },
+
+            ensaiosClinicos: {
+                campo: "ensaiosClinicos",
+                percentual: false,
+                titulo: "Ensaios clínicos"
+            },
+
+            pesquisasAndamento: {
+                campo: "pesquisasAndamento",
+                percentual: false,
+                titulo: "Pesquisas em andamento"
+            },
+
+            mediaInterna: {
+                campo: "mediaInterna",
+                percentual: true,
+                titulo: "Média interna"
+            }
+        };
+
+        var mensagem = document.getElementById("mensagem");
+        var filtroIndicador = document.getElementById("filtroIndicador");
+        var filtroAno = document.getElementById("filtroAno");
+        var grafico = document.getElementById("grafico");
+
+        function criarElementoSVG(nome, atributos) {
+            var elemento = document.createElementNS(
+                "http://www.w3.org/2000/svg",
+                nome
+            );
+
+            var chaves = Object.keys(atributos);
+
+            for (var i = 0; i < chaves.length; i++) {
+                elemento.setAttribute(
+                    chaves[i],
+                    atributos[chaves[i]]
+                );
+            }
+
+            return elemento;
+        }
+
+        function converterData(dataISO) {
+            var partes = dataISO.split("-");
+
+            if (partes.length !== 3) {
+                return dataISO;
+            }
+
+            return (
+                partes[2] +
+                "/" +
+                partes[1] +
+                "/" +
+                partes[0]
+            );
+        }
+
+        function obterAno(dataISO) {
+            return String(dataISO).substring(0, 4);
+        }
+
+        function formatarNumero(valor) {
+            return Number(valor || 0).toLocaleString("pt-BR");
+        }
+
+        function formatarPercentual(valor) {
+            return (
+                Number(valor || 0).toLocaleString(
+                    "pt-BR",
+                    {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    }
+                ) + "%"
+            );
+        }
+
+        function mostrarErro(texto) {
+            mensagem.textContent = texto;
+            mensagem.className =
+                "mensagem mensagem-erro";
+            mensagem.style.display = "block";
+        }
+
+        function ocultarMensagem() {
+            mensagem.style.display = "none";
+        }
+
+        function ordenarHistorico() {
+            historicoCompleto.sort(
+                function(itemA, itemB) {
+                    return String(itemA.data).localeCompare(
+                        String(itemB.data)
+                    );
+                }
+            );
+        }
+
+        function preencherFiltroDeAno() {
+            var anosEncontrados = {};
+
+            for (
+                var i = 0;
+                i < historicoCompleto.length;
+                i++
+            ) {
+                anosEncontrados[
+                    obterAno(historicoCompleto[i].data)
+                ] = true;
+            }
+
+            var anos = Object.keys(anosEncontrados);
+
+            anos.sort(function(anoA, anoB) {
+                return Number(anoB) - Number(anoA);
+            });
+
+            filtroAno.innerHTML =
+                "<option value=\"todos\">" +
+                "Todo o histórico" +
+                "</option>";
+
+            for (var indice = 0; indice < anos.length; indice++) {
+                var opcao = document.createElement("option");
+
+                opcao.value = anos[indice];
+                opcao.textContent = anos[indice];
+
+                filtroAno.appendChild(opcao);
+            }
+        }
+
+        function classeVariacao(valor) {
+            if (valor > 0) {
+                return "variacao-positiva";
+            }
+
+            if (valor < 0) {
+                return "variacao-negativa";
+            }
+
+            return "variacao-neutra";
+        }
+
+        function textoVariacao(
+            valorAtual,
+            valorAnterior,
+            dataAnterior,
+            percentual
+        ) {
+            if (valorAnterior === null) {
+                return (
+                    "<span class=\"variacao-neutra\">" +
+                    "Primeira medição registrada" +
+                    "</span>"
+                );
+            }
+
+            var diferenca =
+                Number(valorAtual) -
+                Number(valorAnterior);
+
+            var sinal =
+                diferenca > 0 ? "+" : "";
+
+            var valorFormatado;
+
+            if (percentual) {
+                valorFormatado =
+                    sinal +
+                    diferenca.toLocaleString(
+                        "pt-BR",
+                        {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2
+                        }
+                    ) +
+                    " ponto(s) percentual(is)";
+            } else {
+                valorFormatado =
+                    sinal +
+                    diferenca.toLocaleString("pt-BR");
+            }
+
+            return (
+                "<span class=\"" +
+                classeVariacao(diferenca) +
+                "\">" +
+                valorFormatado +
+                "</span>" +
+                "<br>desde " +
+                converterData(dataAnterior)
+            );
+        }
+
+        function atualizarCards() {
+            if (historicoCompleto.length === 0) {
+                return;
+            }
+
+            var indiceAtual =
+                historicoCompleto.length - 1;
+
+            var atual =
+                historicoCompleto[indiceAtual];
+
+            var anterior =
+                indiceAtual > 0
+                    ? historicoCompleto[indiceAtual - 1]
+                    : null;
+
+            document.getElementById(
+                "ultimaAtualizacao"
+            ).textContent = converterData(atual.data);
+
+            document.getElementById(
+                "valorAtendimentos"
+            ).textContent = formatarNumero(
+                atual.atendimentos
+            );
+
+            document.getElementById(
+                "valorRecrutamentos"
+            ).textContent = formatarNumero(
+                atual.recrutamentos
+            );
+
+            document.getElementById(
+                "valorEstudos"
+            ).textContent = formatarNumero(
+                atual.estudosAtivos
+            );
+
+            document.getElementById(
+                "valorEnsaios"
+            ).textContent = formatarNumero(
+                atual.ensaiosClinicos
+            );
+
+            document.getElementById(
+                "valorPesquisas"
+            ).textContent = formatarNumero(
+                atual.pesquisasAndamento
+            );
+
+            document.getElementById(
+                "valorMedia"
+            ).textContent = formatarPercentual(
+                atual.mediaInterna
+            );
+
+            var dataAnterior =
+                anterior ? anterior.data : "";
+
+            document.getElementById(
+                "variacaoAtendimentos"
+            ).innerHTML = textoVariacao(
+                atual.atendimentos,
+                anterior ? anterior.atendimentos : null,
+                dataAnterior,
+                false
+            );
+
+            document.getElementById(
+                "variacaoRecrutamentos"
+            ).innerHTML = textoVariacao(
+                atual.recrutamentos,
+                anterior ? anterior.recrutamentos : null,
+                dataAnterior,
+                false
+            );
+
+            document.getElementById(
+                "variacaoEstudos"
+            ).innerHTML = textoVariacao(
+                atual.estudosAtivos,
+                anterior ? anterior.estudosAtivos : null,
+                dataAnterior,
+                false
+            );
+
+            document.getElementById(
+                "variacaoEnsaios"
+            ).innerHTML = textoVariacao(
+                atual.ensaiosClinicos,
+                anterior ? anterior.ensaiosClinicos : null,
+                dataAnterior,
+                false
+            );
+
+            document.getElementById(
+                "variacaoPesquisas"
+            ).innerHTML = textoVariacao(
+                atual.pesquisasAndamento,
+                anterior ? anterior.pesquisasAndamento : null,
+                dataAnterior,
+                false
+            );
+
+            document.getElementById(
+                "variacaoMedia"
+            ).innerHTML = textoVariacao(
+                atual.mediaInterna,
+                anterior ? anterior.mediaInterna : null,
+                dataAnterior,
+                true
+            );
+
+            document.getElementById(
+                "textoObservacao"
+            ).textContent =
+                atual.observacao ||
+                "Nenhuma observação registrada.";
+        }
+
+        function obterHistoricoFiltrado() {
+            var anoSelecionado = filtroAno.value;
+
+            if (anoSelecionado === "todos") {
+                return historicoCompleto.slice();
+            }
+
+            return historicoCompleto.filter(
+                function(item) {
+                    return (
+                        obterAno(item.data) ===
+                        anoSelecionado
+                    );
+                }
+            );
+        }
+
+        function desenharGrafico() {
+            var dadosFiltrados =
+                obterHistoricoFiltrado();
+
+            var chaveIndicador =
+                filtroIndicador.value;
+
+            var configuracao =
+                configuracoes[chaveIndicador];
+
+            grafico.innerHTML = "";
+
+            var largura = 1000;
+            var altura = 360;
+            var margemEsquerda = 80;
+            var margemDireita = 35;
+            var margemSuperior = 35;
+            var margemInferior = 65;
+
+            var larguraUtil =
+                largura -
+                margemEsquerda -
+                margemDireita;
+
+            var alturaUtil =
+                altura -
+                margemSuperior -
+                margemInferior;
+
+            if (dadosFiltrados.length === 0) {
+                var textoVazio = criarElementoSVG(
+                    "text",
+                    {
+                        x: "500",
+                        y: "180",
+                        "text-anchor": "middle",
+                        fill: "#637987",
+                        "font-size": "18"
+                    }
+                );
+
+                textoVazio.textContent =
+                    "Não há medições no período selecionado.";
+
+                grafico.appendChild(textoVazio);
+                return;
+            }
+
+            var valores = [];
+
+            for (
+                var i = 0;
+                i < dadosFiltrados.length;
+                i++
+            ) {
+                valores.push(
+                    Number(
+                        dadosFiltrados[i][
+                            configuracao.campo
+                        ]
+                    ) || 0
+                );
+            }
+
+            var valorMaximo = Math.max.apply(
+                null,
+                valores
+            );
+
+            var valorMinimo = Math.min.apply(
+                null,
+                valores
+            );
+
+            if (valorMaximo === valorMinimo) {
+                valorMaximo = valorMaximo + 1;
+
+                if (valorMinimo > 0) {
+                    valorMinimo = valorMinimo - 1;
+                }
+            }
+
+            var folga =
+                (valorMaximo - valorMinimo) * 0.12;
+
+            valorMaximo = valorMaximo + folga;
+            valorMinimo = Math.max(0, valorMinimo - folga);
+
+            for (
+                var linhaIndice = 0;
+                linhaIndice <= 4;
+                linhaIndice++
+            ) {
+                var yLinha =
+                    margemSuperior +
+                    (
+                        alturaUtil *
+                        linhaIndice /
+                        4
+                    );
+
+                var linhaGrade = criarElementoSVG(
+                    "line",
+                    {
+                        x1: String(margemEsquerda),
+                        y1: String(yLinha),
+                        x2: String(
+                            largura - margemDireita
+                        ),
+                        y2: String(yLinha),
+                        stroke: "#dce5ea",
+                        "stroke-width": "1"
+                    }
+                );
+
+                grafico.appendChild(linhaGrade);
+
+                var valorLinha =
+                    valorMaximo -
+                    (
+                        (
+                            valorMaximo -
+                            valorMinimo
+                        ) *
+                        linhaIndice /
+                        4
+                    );
+
+                var textoEixo = criarElementoSVG(
+                    "text",
+                    {
+                        x: String(
+                            margemEsquerda - 12
+                        ),
+                        y: String(yLinha + 5),
+                        "text-anchor": "end",
+                        fill: "#637987",
+                        "font-size": "13"
+                    }
+                );
+
+                textoEixo.textContent =
+                    configuracao.percentual
+                        ? valorLinha.toLocaleString(
+                            "pt-BR",
+                            {
+                                maximumFractionDigits: 2
+                            }
+                        ) + "%"
+                        : Math.round(
+                            valorLinha
+                        ).toLocaleString("pt-BR");
+
+                grafico.appendChild(textoEixo);
+            }
+
+            var pontos = [];
+
+            for (
+                var indice = 0;
+                indice < dadosFiltrados.length;
+                indice++
+            ) {
+                var x;
+
+                if (dadosFiltrados.length === 1) {
+                    x =
+                        margemEsquerda +
+                        larguraUtil / 2;
+                } else {
+                    x =
+                        margemEsquerda +
+                        (
+                            larguraUtil *
+                            indice /
+                            (
+                                dadosFiltrados.length -
+                                1
+                            )
+                        );
+                }
+
+                var valorAtual =
+                    Number(
+                        dadosFiltrados[indice][
+                            configuracao.campo
+                        ]
+                    ) || 0;
+
+                var proporcao =
+                    (
+                        valorAtual -
+                        valorMinimo
+                    ) /
+                    (
+                        valorMaximo -
+                        valorMinimo
+                    );
+
+                var y =
+                    margemSuperior +
+                    alturaUtil -
+                    proporcao * alturaUtil;
+
+                pontos.push({
+                    x: x,
+                    y: y,
+                    valor: valorAtual,
+                    data: dadosFiltrados[indice].data
+                });
+            }
+
+            if (pontos.length > 1) {
+                var listaPontos = [];
+
+                for (
+                    var indicePonto = 0;
+                    indicePonto < pontos.length;
+                    indicePonto++
+                ) {
+                    listaPontos.push(
+                        pontos[indicePonto].x +
+                        "," +
+                        pontos[indicePonto].y
+                    );
+                }
+
+                var linhaDados = criarElementoSVG(
+                    "polyline",
+                    {
+                        points: listaPontos.join(" "),
+                        fill: "none",
+                        stroke: "#087f78",
+                        "stroke-width": "4",
+                        "stroke-linecap": "round",
+                        "stroke-linejoin": "round"
+                    }
+                );
+
+                grafico.appendChild(linhaDados);
+            }
+
+            for (
+                var pontoIndice = 0;
+                pontoIndice < pontos.length;
+                pontoIndice++
+            ) {
+                var ponto = pontos[pontoIndice];
+
+                var circulo = criarElementoSVG(
+                    "circle",
+                    {
+                        cx: String(ponto.x),
+                        cy: String(ponto.y),
+                        r: "7",
+                        fill: "#087f78",
+                        stroke: "#ffffff",
+                        "stroke-width": "3"
+                    }
+                );
+
+                grafico.appendChild(circulo);
+
+                var textoValor = criarElementoSVG(
+                    "text",
+                    {
+                        x: String(ponto.x),
+                        y: String(ponto.y - 16),
+                        "text-anchor": "middle",
+                        fill: "#123b59",
+                        "font-size": "14",
+                        "font-weight": "700"
+                    }
+                );
+
+                textoValor.textContent =
+                    configuracao.percentual
+                        ? formatarPercentual(
+                            ponto.valor
+                        )
+                        : formatarNumero(
+                            ponto.valor
+                        );
+
+                grafico.appendChild(textoValor);
+
+                var textoData = criarElementoSVG(
+                    "text",
+                    {
+                        x: String(ponto.x),
+                        y: String(
+                            altura - margemInferior + 28
+                        ),
+                        "text-anchor": "middle",
+                        fill: "#637987",
+                        "font-size": "13"
+                    }
+                );
+
+                textoData.textContent =
+                    converterData(ponto.data);
+
+                grafico.appendChild(textoData);
+            }
+
+            atualizarResumoGrafico(
+                dadosFiltrados,
+                configuracao
+            );
+        }
+
+        function atualizarResumoGrafico(
+            dadosFiltrados,
+            configuracao
+        ) {
+            if (dadosFiltrados.length === 0) {
+                document.getElementById(
+                    "resumoPrimeiro"
+                ).textContent = "-";
+
+                document.getElementById(
+                    "resumoUltimo"
+                ).textContent = "-";
+
+                document.getElementById(
+                    "resumoVariacao"
+                ).textContent = "-";
+
+                return;
+            }
+
+            var primeiro =
+                Number(
+                    dadosFiltrados[0][
+                        configuracao.campo
+                    ]
+                ) || 0;
+
+            var ultimo =
+                Number(
+                    dadosFiltrados[
+                        dadosFiltrados.length - 1
+                    ][configuracao.campo]
+                ) || 0;
+
+            var diferenca = ultimo - primeiro;
+            var sinal = diferenca > 0 ? "+" : "";
+
+            document.getElementById(
+                "resumoPrimeiro"
+            ).textContent =
+                configuracao.percentual
+                    ? formatarPercentual(primeiro)
+                    : formatarNumero(primeiro);
+
+            document.getElementById(
+                "resumoUltimo"
+            ).textContent =
+                configuracao.percentual
+                    ? formatarPercentual(ultimo)
+                    : formatarNumero(ultimo);
+
+            document.getElementById(
+                "resumoVariacao"
+            ).textContent =
+                configuracao.percentual
+                    ? sinal +
+                      diferenca.toLocaleString(
+                          "pt-BR",
+                          {
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2
+                          }
+                      ) +
+                      " p.p."
+                    : sinal +
+                      diferenca.toLocaleString(
+                          "pt-BR"
+                      );
+        }
+
+        function carregarDados() {
+            var endereco =
+                "dados.json?atualizacao=" +
+                new Date().getTime();
+
+            fetch(
+                endereco,
+                {
+                    method: "GET",
+                    cache: "no-store"
+                }
+            )
+            .then(function(resposta) {
+                if (!resposta.ok) {
+                    throw new Error(
+                        "Erro ao carregar dados.json: " +
+                        resposta.status
+                    );
+                }
+
+                return resposta.json();
+            })
+            .then(function(dados) {
+                if (
+                    !dados ||
+                    !Array.isArray(dados.historico) ||
+                    dados.historico.length === 0
+                ) {
+                    throw new Error(
+                        "O histórico está vazio ou inválido."
+                    );
+                }
+
+                historicoCompleto =
+                    dados.historico;
+
+                ordenarHistorico();
+                preencherFiltroDeAno();
+                atualizarCards();
+                desenharGrafico();
+                ocultarMensagem();
+            })
+            .catch(function(erro) {
+                console.error(erro);
+
+                mostrarErro(
+                    "Não foi possível carregar os indicadores. " +
+                    erro.message
+                );
+            });
+        }
+
+        filtroIndicador.addEventListener(
+            "change",
+            desenharGrafico
+        );
+
+        filtroAno.addEventListener(
+            "change",
+            desenharGrafico
+        );
+
+        carregarDados();
+    </script>
+
+</body>
+</html>
