@@ -1,0 +1,68 @@
+name: Atualizar dados do Dashboard UGPESQ
+
+on:
+  repository_dispatch:
+    types:
+      - atualizar-dados-ugpesq
+
+permissions:
+  contents: write
+
+jobs:
+  atualizar-dados:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Baixar o repositório
+        uses: actions/checkout@v4
+
+      - name: Gerar dados.json
+        env:
+          DADOS_UGPESQ: ${{ toJson(github.event.client_payload) }}
+        run: |
+          python - <<'PY'
+          import json
+          import os
+
+          conteudo = os.environ["DADOS_UGPESQ"]
+          dados = json.loads(conteudo)
+
+          if "historico" not in dados:
+              raise ValueError(
+                  "O campo historico não foi recebido."
+              )
+
+          if not isinstance(dados["historico"], list):
+              raise ValueError(
+                  "O campo historico não é uma lista."
+              )
+
+          with open(
+              "dados.json",
+              "w",
+              encoding="utf-8"
+          ) as arquivo:
+              json.dump(
+                  dados,
+                  arquivo,
+                  ensure_ascii=False,
+                  indent=2
+              )
+          PY
+
+      - name: Validar dados.json
+        run: |
+          python -m json.tool dados.json > /dev/null
+
+      - name: Publicar os novos dados
+        run: |
+          git config user.name "Automação UGPESQ"
+          git config user.email "actions@github.com"
+          git add dados.json
+
+          if git diff --cached --quiet; then
+            echo "Nenhuma alteração encontrada."
+          else
+            git commit -m "Atualizar indicadores da UGPESQ"
+            git push
+          fi
